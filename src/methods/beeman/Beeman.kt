@@ -1,29 +1,40 @@
 package methods.beeman
 
+import methods.utils.InitialConditions
 import methods.utils.MethodManager
+import methods.utils.MethodProvider
 import utils.Particle
 import utils.Vector
 
-class BeemanParticle: Particle {
-
-    override val position: Vector
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
-
-    override val velocity: Vector
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
-
-
+class BeemanParticle(
+        override val position: Vector,
+        override val velocity: Vector,
+        override val radius: Double,
+        override val mass: Double) : Particle {
 }
 
-class BeemanManager: MethodManager {
+class BeemanManager(conditions: InitialConditions): MethodManager {
 
     private val particles: ArrayList<BeemanParticle> = ArrayList()
 
-    override fun subscribe(step: Int, listener: (Collection<Particle>) -> Unit) {
+    companion object Provider: MethodProvider {
+        override fun generateManager(conditions: InitialConditions): MethodManager = BeemanManager(conditions)
+    }
+
+    init {
+        print(conditions)
+    }
+
+
+    override fun initializeParticles(particles: Collection<Particle>) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun startSimulaion() {
+    override fun nextStep() {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun subscribe(step: Int, listener: (Collection<Particle>) -> Unit) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
