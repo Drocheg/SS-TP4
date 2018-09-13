@@ -22,6 +22,10 @@ data class Vector(val x: Double, val y: Double) {
         return x * v.x + y * v.y
     }
 
+    operator fun times(t: Double): Vector {
+        return this.scaledBy(t)
+    }
+
     operator fun minus(v: Vector): Vector {
         return Vector(x - v.x, y - v.y)
     }
@@ -33,4 +37,9 @@ data class Vector(val x: Double, val y: Double) {
     fun scaledBy(d: Double): Vector {
         return Vector(d * x, d * y)
     }
+}
+
+
+operator fun Double.times(v: Vector) : Vector {
+    return v.scaledBy(this)
 }
