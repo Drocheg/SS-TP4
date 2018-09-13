@@ -1,10 +1,9 @@
 package methods.beeman
 
-import methods.utils.SystemProperties
+import methods.utils.SimulationProperties
 import utils.Particle
 
-abstract class Simulator(properties: SystemProperties) {
-
+abstract class Simulator(properties: SimulationProperties) {
     protected lateinit var particles: List<Particle>
     protected val dt : Double = properties.deltaTime
     private val maxTime = properties.maxTime
@@ -16,6 +15,8 @@ abstract class Simulator(properties: SystemProperties) {
 
     fun simulate() {
         var time = 0.0
+        listener?.notify(time, particles) // Initial
+
         while(time < maxTime) {
             updateParticles()
             time += dt

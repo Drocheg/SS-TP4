@@ -15,10 +15,10 @@ object StatsPrinter {
         }
 
 
-    fun printPositions(stats: List<Stats>) {
+    fun printPositions(stats: List<Stats>, name: String) {
         val dir = outputDirectory
         try {
-            val theFile = File("$dir/positions.dat")
+            val theFile = File("$dir/positions_${name}.dat")
             BufferedWriter(OutputStreamWriter(
                     FileOutputStream(theFile), "utf-8")).use { writer ->
                 for(stat in stats) {
