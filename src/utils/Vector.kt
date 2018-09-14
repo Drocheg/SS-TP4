@@ -4,12 +4,10 @@ import kotlin.math.sqrt
 
 data class Vector(val x: Double, val y: Double) {
     companion object {
+        val ZERO = Vector(0.0,0.0)
+
         fun dot(v1: Vector, v2: Vector): Double {
             return v1 * v2
-        }
-
-        fun norm(v: Vector): Double {
-            return sqrt(dot(v, v))
         }
 
         fun delta(v1: Vector, v2: Vector): Vector {
@@ -36,6 +34,10 @@ data class Vector(val x: Double, val y: Double) {
 
     fun scaledBy(d: Double): Vector {
         return Vector(d * x, d * y)
+    }
+
+    fun norm() : Double {
+        return sqrt(dot(this, this))
     }
 }
 

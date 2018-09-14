@@ -16,27 +16,34 @@ class GearPredictorCorrector(properties: SimulationProperties, val gearInitializ
         override fun generate(properties: SimulationProperties): Simulator = GearPredictorCorrector(properties, gearInitializer)
     }
 
+    private val c1: Double
+    private val c2: Double
+    private val c3: Double
+    private val c4: Double
+    private val c5: Double
+
+    private val a = arrayOf(3.0/16, 251.0/360, 1.0, 11.0/18, 1.0/6, 1.0/60)     // Alpha table
+    private val fact = arrayOf(1.0, 1.0, 2.0, 6.0, 24.0, 120.0)     // Factorial table
+
+
     init {
         val providedParticles = properties.intialParticles
         particles = providedParticles.map {
             GearParticle(it, gearInitializer.calculateInitialDerivatives(it))
         }
+
+        c1 = dt
+        c2 = (dt * c1) / 2.0
+        c3 = (dt * c2) / 3.0
+        c4 = (dt * c3) / 4.0
+        c5 = (dt * c4) / 5.0
     }
+
 
     override fun updateParticles() {
         val gearParticles = particles as List<GearParticle>
 
         // Taylor coefficients
-        val c1 = dt
-        val c2 = (dt * c1) / 2.0
-        val c3 = (dt * c2) / 3.0
-        val c4 = (dt * c3) / 4.0
-        val c5 = (dt * c4) / 5.0
-
-        val a = arrayOf(3.0/16, 251.0/360, 1.0, 11.0/18, 1.0/6, 1.0/60)     // Alpha table
-        val fact = arrayOf(1.0, 1.0, 2.0, 6.0, 24.0, 120.0)     // Factorial table
-
-
 
         val predictedParticles = mutableListOf<GearParticle>()
         // 1. Predict
@@ -61,8 +68,8 @@ class GearPredictorCorrector(properties: SimulationProperties, val gearInitializ
         }
 
 
-        for(p in gearParticles) {
-            val predicted = predictedParticles.find { it.id == p.id }!!
+        gearParticles.forEachIndexed { index, p ->
+            val predicted = predictedParticles[index]
 
             val r2_p = predicted.derivatives[2]
             val nextAccel = forceCalculator.calculateAcceleration(predicted, predictedParticles)

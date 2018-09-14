@@ -37,6 +37,7 @@ class VelocityVerlet(properties: SimulationProperties) : Simulator(properties) {
             val updatedVelocity = it.velocity + 0.5 * dt * accel
             it.velocity = updatedVelocity
         }
+
     }
 
 }

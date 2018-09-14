@@ -45,10 +45,10 @@ def trajectory(dir, show = False):
     ys = [analytic(x) for x in xs]
 
     
-    plt.plot(xs, ys)
     plt.plot(x_b, y_b, 'k')
     plt.plot(x_g, y_g, 'y')
     plt.plot(x_v, y_v, 'g')
+    plt.plot(xs, ys)
     
 
 

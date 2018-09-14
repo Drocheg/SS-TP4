@@ -23,8 +23,8 @@ class VelocityDependentBeeman(properties: SimulationProperties) : Simulator(prop
             Particle(it.id, prevPosition, prevVelocity, it.radius, it.mass)
         }
 
-        particles = providedParticles.map {
-            val prevStateParticle = prevStateParticles.find { p -> p.id == it.id }!! // Guaranteed not null
+        particles = providedParticles.mapIndexed { index, it ->
+            val prevStateParticle = prevStateParticles[index]
             BeemanParticle(it, forceCalculator.calculateAcceleration(prevStateParticle, prevStateParticles))
         }
     }
@@ -57,8 +57,8 @@ class VelocityDependentBeeman(properties: SimulationProperties) : Simulator(prop
         }
 
         // Realmente avanzar
-        for(p in beemanParticles) {
-            val predicted = predictedParticles.find { it.id == p.id }!!
+        beemanParticles.forEachIndexed { i, p ->
+            val predicted = predictedParticles[i]
             val nextPosition = predicted.position
 
             val predictedAccel = forceCalculator.calculateAcceleration(predicted, predictedParticles)

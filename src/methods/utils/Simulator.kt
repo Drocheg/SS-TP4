@@ -25,11 +25,12 @@ abstract class Simulator(properties: SimulationProperties) {
     }
 
     private fun notifyListener(time: Double) {
-        if(listener == null) return
-        count++
-        if(count == listener.steps) {
-            listener.notify(time, particles)
-            count = 0
+        listener?.let {
+            count++
+            if(count == listener.steps) {
+                listener.notify(time, particles)
+                count = 0
+            }
         }
     }
 
