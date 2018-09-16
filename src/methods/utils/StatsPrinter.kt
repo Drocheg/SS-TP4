@@ -22,7 +22,7 @@ object StatsPrinter {
             BufferedWriter(OutputStreamWriter(
                     FileOutputStream(theFile), "utf-8")).use { writer ->
                 for(stat in stats) {
-                    writer.write("${stat.time} ${stat.energy}")
+                    writer.write("${stat.time} ${stat.kinticEnergy}")
                     stat.positions.forEach { (_, position) ->
                         writer.write(" ${position.x} ${position.y}")
                     }

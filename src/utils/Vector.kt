@@ -39,6 +39,11 @@ data class Vector(val x: Double, val y: Double) {
     fun norm() : Double {
         return sqrt(dot(this, this))
     }
+
+    fun versor() : Vector {
+        return this.scaledBy(1/norm())
+    }
+
 }
 
 

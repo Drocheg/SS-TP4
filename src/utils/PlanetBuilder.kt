@@ -36,6 +36,6 @@ enum class Planets(val radius: Double,
 
     fun generateBasic(): Particle = generate(baseX, baseY, baseVx, baseVy)
 
-    fun generate(x: Double, y: Double, vx: Double, vy: Double) = Particle(this.ordinal, Vector(x,y), Vector(vx, vy), radius, mass);
+    fun generate(x: Double, y: Double, vx: Double, vy: Double) = Particle(this.ordinal, Vector(x,y), Vector(vx, vy), radius, mass)
 
 }
