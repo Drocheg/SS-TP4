@@ -65,7 +65,7 @@ class TP4 {
             builder.build().simulate()
             StatsPrinter.printPositions(stats.statList, "earth")
 
-           OvitoPrinter.printPositions(stats.statList,  "planets", shouldPrint = true)
+           OvitoPrinter.printPositions(stats.statList,  "planets", shouldPrint = false)
 
         }
 
