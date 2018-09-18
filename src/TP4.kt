@@ -71,7 +71,7 @@ class TP4 {
         @JvmStatic
         fun main(args: Array<String>) {
             File("stats/distance").delete()
-            CSVReader.doForEachDay {
+            CSVReader.daysData().forEach {
                 println(it.Date)
                 testManyShips(it.particles, DistanceTracker(1, it.Date))
             }

@@ -5,12 +5,12 @@ import java.io.File
 
 class CSVReader {
     companion object {
-        fun doForEachDay(process: (DayData) -> Unit) {
+        fun daysData(): Sequence<DayData> {
             val earth = File("planets/earth.csv").bufferedReader().lineSequence()
             val jupiter = File("planets/jupiter.csv").bufferedReader().lineSequence()
             val saturn = File("planets/saturn.csv").bufferedReader().lineSequence()
 
-            earth.zip(saturn).zip(jupiter).forEach {
+            return earth.zip(saturn).zip(jupiter).map {
                 val earthData = it.first.first.split(",")
                 val jupiterData = it.first.second.split(",")
                 val saturnData = it.second.split(",")
@@ -40,7 +40,7 @@ class CSVReader {
 
                 particles.add(Planets.SUN.generateBasic())
 
-                process(DayData(earthData[1], particles))
+                return@map DayData(earthData[1], particles)
             }
         }
     }
