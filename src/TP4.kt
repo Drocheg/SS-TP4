@@ -48,9 +48,8 @@ class TP4 {
 
 
         @JvmStatic
-        fun mainOther(args: Array<String>) {
+        fun main(args: Array<String>) {
             StatsPrinter.outputDirectory = "planet"
-
 
             val stats = SystemStats(1)
 
@@ -66,10 +65,12 @@ class TP4 {
             builder.build().simulate()
             StatsPrinter.printPositions(stats.statList, "earth")
 
+           OvitoPrinter.printPositions(stats.statList,  "planets", shouldPrint = false)
+
         }
 
         @JvmStatic
-        fun main(args: Array<String>) {
+        fun mainDistance(args: Array<String>) {
             File("stats/distance").delete()
             CSVReader.daysData().forEach {
                 println(it.Date)
