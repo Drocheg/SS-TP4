@@ -51,7 +51,7 @@ class TP4 {
         fun main(args: Array<String>) {
             StatsPrinter.outputDirectory = "planet"
 
-            val stats = SystemStats(1000)
+            val stats = SystemStats(1)
 
             val builder =
                     SimulationProperties()
