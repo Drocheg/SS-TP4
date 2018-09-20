@@ -15,6 +15,7 @@ def trajectory(dir, show = False):
     x_jup = []
     y_jup = []
 
+
     for i in range(len(verlet)):
         x_v.append(float(verlet[i].split(' ')[2]))
         y_v.append(float(verlet[i].split(' ')[3]))
@@ -41,4 +42,5 @@ def trajectory(dir, show = False):
     plt.close()
     
 
+###########
 trajectory('planet', True)

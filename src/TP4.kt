@@ -9,12 +9,13 @@ import java.io.File
 class TP4 {
     companion object {
         @JvmStatic
-        fun springMain(args: Array<String>) {
-            StatsPrinter.outputDirectory = "testing"
+        fun mainX(args: Array<String>) {
+            StatsPrinter.outputDirectory = "spring"
+
 
             val builder =
                     SimulationProperties()
-                    .setDeltaTime(0.04)
+                    .setDeltaTime(0.05)
                     .setMaxTime(5.0)
                     .setInitialParticles(listOf(Particle(0, Vector(1.0, 0.0), Vector(-100.0/140.0, 0.0), 0.1, 70.0)))
                     .setForceCalculator(SpringForce())
@@ -24,7 +25,7 @@ class TP4 {
             var stats = SystemStats(1)
 
             // Gear
-            builder.setProvider(GearPredictorCorrector.GearProvider(SpringGearInitializer()))
+            builder.setProvider(GearPredictorCorrector.GearProvider(SpringGearInitializer(), true))
                    .setStatsManager(stats)
             builder.build().simulate()
             StatsPrinter.printPositions(stats.statList, "gear")
@@ -45,6 +46,45 @@ class TP4 {
             StatsPrinter.printPositions(stats.statList, "verlet")
         }
 
+        @JvmStatic
+        fun mainLoop(args: Array<String>) {
+            StatsPrinter.outputDirectory = "errors_out"
+
+            for (i in 1..100) {
+                val deltaTime = 0 + i * (0.05 / 100.0)
+
+                val builder =
+                        SimulationProperties()
+                                .setDeltaTime(deltaTime)
+                                .setMaxTime(5.0)
+                                .setInitialParticles(listOf(Particle(0, Vector(1.0, 0.0), Vector(-100.0 / 140.0, 0.0), 0.1, 70.0)))
+                                .setForceCalculator(SpringForce())
+
+
+                var stats = SystemStats(1)
+
+                // Gear
+                builder.setProvider(GearPredictorCorrector.GearProvider(SpringGearInitializer(), true))
+                        .setStatsManager(stats)
+                builder.build().simulate()
+                StatsPrinter.printPositions(stats.statList, "gear_${i}")
+
+                // Beeman
+                stats = SystemStats(1)
+                builder.setProvider(VelocityDependentBeeman.Provider)
+                        .setStatsManager(stats)
+                builder.build().simulate()
+                StatsPrinter.printPositions(stats.statList, "beeman_${i}")
+
+
+                // Verlet
+                stats = SystemStats(1)
+                builder.setProvider(VelocityVerlet.Provider)
+                        .setStatsManager(stats)
+                builder.build().simulate()
+                StatsPrinter.printPositions(stats.statList, "verlet_${i}")
+            }
+        }
 
 
         @JvmStatic

@@ -9,11 +9,11 @@ import utils.times
 
 
 
-class GearPredictorCorrector(properties: SimulationProperties, val gearInitializer: GearInitializer) : Simulator(properties) {
+class GearPredictorCorrector(properties: SimulationProperties, val gearInitializer: GearInitializer, velocityDependantForce: Boolean) : Simulator(properties) {
     private class GearParticle(from: Particle, var derivatives: List<Vector>) : Particle(from.id, from.position, from.velocity, from.radius, from.mass)
 
-    class GearProvider(private val gearInitializer: GearInitializer) : SimulatorProvider {
-        override fun generate(properties: SimulationProperties): Simulator = GearPredictorCorrector(properties, gearInitializer)
+    class GearProvider(private val gearInitializer: GearInitializer, private val velocityDependant: Boolean) : SimulatorProvider {
+        override fun generate(properties: SimulationProperties): Simulator = GearPredictorCorrector(properties, gearInitializer, velocityDependant)
     }
 
     private val c1: Double
@@ -22,7 +22,7 @@ class GearPredictorCorrector(properties: SimulationProperties, val gearInitializ
     private val c4: Double
     private val c5: Double
 
-    private val a = arrayOf(3.0/16, 251.0/360, 1.0, 11.0/18, 1.0/6, 1.0/60)     // Alpha table
+    private val a = if (velocityDependantForce) arrayOf(3.0/20, 251.0/360, 1.0, 11.0/18, 1.0/6, 1.0/60)  else arrayOf(3.0/16, 251.0/360, 1.0, 11.0/18, 1.0/6, 1.0/60)  // Alpha table
     private val fact = arrayOf(1.0, 1.0, 2.0, 6.0, 24.0, 120.0)     // Factorial table
 
 

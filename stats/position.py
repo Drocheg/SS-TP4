@@ -59,4 +59,4 @@ def trajectory(dir, show = False):
     plt.close()
     
 
-trajectory('testing', True)
+trajectory('spring', True)
