@@ -8,7 +8,12 @@ import utils.times
 
 
 class VelocityDependentBeeman(properties: SimulationProperties) : Simulator(properties) {
-    private class BeemanParticle(from: Particle, var prevAccel: Vector) : Particle(from.id, from.position, from.velocity, from.radius, from.mass);
+    private class BeemanParticle(from: Particle, var prevAccel: Vector) : Particle(from.id, from.position, from.velocity, from.radius, from.mass) {
+
+        override fun clone(): Particle {
+            return BeemanParticle(super.clone(), prevAccel)
+        }
+    }
 
     companion object Provider: SimulatorProvider {
         override fun generate(properties: SimulationProperties): Simulator = VelocityDependentBeeman(properties)

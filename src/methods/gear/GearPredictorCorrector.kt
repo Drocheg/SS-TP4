@@ -1,6 +1,7 @@
 package methods.gear
 
 import methods.beeman.Simulator
+import methods.beeman.VelocityDependentBeeman
 import methods.utils.SimulationProperties
 import methods.utils.SimulatorProvider
 import utils.Particle
@@ -10,7 +11,11 @@ import utils.times
 
 
 class GearPredictorCorrector(properties: SimulationProperties, val gearInitializer: GearInitializer, velocityDependantForce: Boolean) : Simulator(properties) {
-    private class GearParticle(from: Particle, var derivatives: List<Vector>) : Particle(from.id, from.position, from.velocity, from.radius, from.mass)
+    private class GearParticle(from: Particle, var derivatives: List<Vector>) : Particle(from.id, from.position, from.velocity, from.radius, from.mass) {
+        override fun clone(): Particle {
+            return GearParticle(super.clone(), derivatives)
+        }
+    }
 
     class GearProvider(private val gearInitializer: GearInitializer, private val velocityDependant: Boolean) : SimulatorProvider {
         override fun generate(properties: SimulationProperties): Simulator = GearPredictorCorrector(properties, gearInitializer, velocityDependant)

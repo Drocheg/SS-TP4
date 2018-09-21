@@ -10,4 +10,8 @@ open class Particle(val id: Int, var position: Vector, var velocity: Vector, val
     override fun hashCode(): Int {
         return id
     }
+
+    open fun clone(): Particle {
+        return Particle(id, position, velocity, radius, mass)
+    }
 }

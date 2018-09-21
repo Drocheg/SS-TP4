@@ -128,17 +128,16 @@ class TP4 {
 
         @JvmStatic
         fun main(args: Array<String>) {
-            File("stats/distance").delete()
             val builder =
                     SimulationProperties()
-                            .setDeltaTime(1.0 * 60 * 60 * 1)
+                            .setDeltaTime(1.0 * 60 * 60 * 10)
                             .setMaxTime(1.0 * 60 * 60 * 24 * 365 * 3)
                             .setForceCalculator(Gravity())
                             .setProvider(VelocityVerlet.Provider)
-            CSVReader.daysData().filter { it.Date.contains("Sep-05") }.forEach {
+            CSVReader.daysData().forEach {
                 println(it.Date)
-//                testManyShips(it.particles, DistanceTracker(1, it.Date), builder)
-                printOneShip(it.particles, 14.59,12400.0,0.0, 50, builder)
+                testManyShips(it.particles, DistanceTracker(1, it.Date), builder)
+//                printOneShip(it.particles, 11.17,14400.0,0.0, 1, builder)
             }
         }
 
@@ -166,14 +165,15 @@ class TP4 {
             val minL = 6400
             val maxL = minL + 10000
             val maxV0 = 20
-            for (cV in 0..maxV0*100) {
-                val v = cV / 100.0
+            for (cV in 0..maxV0*50) {
+                val v = cV / 50.0
                 println(v)
-//                for (L in minL..maxL step 1000) {
-                  val L = 12400.0
+                for (L in minL..maxL step 500) {
+//                  val L = 12400.0
 //                    for (angle in -90..90 step 5){
-                        distanceTracker.setupInitialConditions(L.toDouble(), v.toDouble(), 0.0) // TODO angle
-                        builder.setInitialParticles(planets.plus(
+                        (builder.stats as DistanceTracker).setupInitialConditions(L.toDouble(), v.toDouble(), 0.0) // TODO angle
+                    try {
+                        builder.setInitialParticles(planets.map { it.clone() }.plus(
                                 Particle(1337,
                                         earth.position + earthVersor.scaledBy(L.toDouble()),
                                         (Vector(-earthVersor.y, earthVersor.x).scaledBy(v.toDouble()) + earth.velocity),
@@ -183,7 +183,10 @@ class TP4 {
                         ))
                                 .build().simulate()
 //                    }
-//                }
+                    }catch (e: Exception) {
+                        println(e)
+                    }
+                }
             }
             distanceTracker.flush()
         }

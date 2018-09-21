@@ -24,8 +24,6 @@ class SystemStats(override val steps: Int): StatsManager {
             acc + 0.5*(particle.velocity * particle.velocity)*particle.mass
         }
 
-
-
         val positions : MutableMap<Int, Vector> = mutableMapOf()
         for (particle in system) {
             positions[particle.id] = particle.position.copy()
@@ -43,14 +41,16 @@ data class DistanceTrackerStats(
     var minV0: Double,
     var minAngle: Double,
     var minDate: String,
-    var timeToGetToSaturn: Double
+    var timeToGetToSaturn: Double,
+    var minJupiterDistance: Double,
+    var minSaturnDistance: Double
 )
 
 class DistanceTracker(override val steps: Int, val date: String): StatsManager {
 
 
     //Best for this Date
-    var best: DistanceTrackerStats = DistanceTrackerStats(Double.MAX_VALUE, 0.0,0.0,0.0,"",0.0)
+    var best: DistanceTrackerStats = DistanceTrackerStats(Double.MAX_VALUE, 0.0,0.0,0.0,"",0.0, 0.0, 0.0)
 
     //Have to track old distances
     var minJupiterDistance = Double.MAX_VALUE
@@ -81,16 +81,25 @@ class DistanceTracker(override val steps: Int, val date: String): StatsManager {
         val ship = system.first { it.id == 1337 }
 
         val saturnDistance = (ship.position - saturn.position).norm()
+        if(saturnDistance < Planets.SATURN.radius) {
+            throw IllegalStateException()
+        }
+
+        val jupiterDistance = (ship.position - jupiter.position).norm()
+        if(jupiterDistance < Planets.JUPITER.radius) {
+            throw IllegalStateException()
+        }
+
         if(minSaturnDistance > saturnDistance) {
             currentTimeToGetToSaturn = time
             minSaturnDistance = saturnDistance
         }
 
-        minJupiterDistance = min(minJupiterDistance, (ship.position - jupiter.position).norm())
+        minJupiterDistance = min(minJupiterDistance, jupiterDistance)
 
         val distance = minJupiterDistance + minSaturnDistance
         if(best.minDistance > distance) {
-            best = DistanceTrackerStats(distance, currentL, currentV0, currentAngle, date, currentTimeToGetToSaturn)
+            best = DistanceTrackerStats(distance, currentL, currentV0, currentAngle, date, currentTimeToGetToSaturn, minJupiterDistance, minSaturnDistance)
         }
     }
 
@@ -100,6 +109,9 @@ class DistanceTracker(override val steps: Int, val date: String): StatsManager {
                 + best.minV0 + ","
                 + best.minL + ","
                 + best.minAngle + ","
-                + best.timeToGetToSaturn +"\n")
+                + best.timeToGetToSaturn + ","
+                + best.minJupiterDistance + ","
+                + best.minSaturnDistance +
+                "\n")
     }
 }
