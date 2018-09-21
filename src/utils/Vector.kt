@@ -44,6 +44,10 @@ data class Vector(val x: Double, val y: Double) {
         return this.scaledBy(1/norm())
     }
 
+    fun rotate(degrees: Double) : Vector {
+        return Vector(Math.cos(degrees*x) - Math.sin(degrees*y), Math.sin(degrees*x) + Math.cos(degrees*y))
+    }
+
 }
 
 

@@ -17,25 +17,24 @@ class TP4 {
 
             val builder =
                     SimulationProperties()
-                    .setDeltaTime(0.05)
-                    .setMaxTime(5.0)
-                    .setInitialParticles(listOf(Particle(0, Vector(1.0, 0.0), Vector(-100.0/140.0, 0.0), 0.1, 70.0)))
-                    .setForceCalculator(SpringForce())
-
+                            .setDeltaTime(0.05)
+                            .setMaxTime(5.0)
+                            .setInitialParticles(listOf(Particle(0, Vector(1.0, 0.0), Vector(-100.0 / 140.0, 0.0), 0.1, 70.0)))
+                            .setForceCalculator(SpringForce())
 
 
             var stats = SystemStats(1)
 
             // Gear
             builder.setProvider(GearPredictorCorrector.GearProvider(SpringGearInitializer(), true))
-                   .setStatsManager(stats)
+                    .setStatsManager(stats)
             builder.build().simulate()
             StatsPrinter.printPositions(stats.statList, "gear")
 
             // Beeman
             stats = SystemStats(1)
             builder.setProvider(VelocityDependentBeeman.Provider)
-                   .setStatsManager(stats)
+                    .setStatsManager(stats)
             builder.build().simulate()
             StatsPrinter.printPositions(stats.statList, "beeman")
 
@@ -90,10 +89,10 @@ class TP4 {
 
 
         @JvmStatic
-        fun main(args: Array<String>) {
+        fun mainPlanets(args: Array<String>) {
             StatsPrinter.outputDirectory = "planet"
 
-            val stats = SystemStats(1)
+            var stats = SystemStats(1000)
 
             val builder =
                     SimulationProperties()
@@ -104,56 +103,88 @@ class TP4 {
                             .setProvider(VelocityVerlet.Provider)
                             .setStatsManager(stats)
 
+//            StatsPrinter.printPositions(stats.statList, "earth")
+//             Gear
+//            builder.setProvider(GearPredictorCorrector.GearProvider(SpringGearInitializer()))
+//                    .setStatsManager(stats)
+//            builder.build().simulate()
+////            OvitoPrinter.printPositions(stats.statList,  "gear", shouldPrint = true)
+//
+//            // Beeman
+//            stats = SystemStats(1000)
+//            builder.setProvider(VelocityDependentBeeman.Provider)
+//                    .setStatsManager(stats)
+//            builder.build().simulate()
+////            OvitoPrinter.printPositions(stats.statList,  "beeman", shouldPrint = true)
+
+
+            // Verlet
+            stats = SystemStats(1000)
+            builder.setProvider(VelocityVerlet.Provider)
+                    .setStatsManager(stats)
             builder.build().simulate()
-            StatsPrinter.printPositions(stats.statList, "earth")
-
-           OvitoPrinter.printPositions(stats.statList,  "planets", shouldPrint = false)
-
+            OvitoPrinter.printPositions(stats.statList, "verlet", shouldPrint = true)
         }
 
         @JvmStatic
-        fun mainDistance(args: Array<String>) {
+        fun main(args: Array<String>) {
             File("stats/distance").delete()
-            CSVReader.daysData().filter { it.Date.contains("Sep-05") }.forEach {
-                println(it.Date)
-                testManyShips(it.particles, DistanceTracker(1, it.Date))
-            }
-
-        }
-
-        fun testManyShips(planets: Collection<Particle>, distanceTracker: DistanceTracker) {
-
             val builder =
                     SimulationProperties()
-                            .setDeltaTime(1.0 * 60 * 60)
-                            .setMaxTime(1.0 * 60 * 60 * 24 * 365 * 2)
+                            .setDeltaTime(1.0 * 60 * 60 * 1)
+                            .setMaxTime(1.0 * 60 * 60 * 24 * 365 * 3)
                             .setForceCalculator(Gravity())
                             .setProvider(VelocityVerlet.Provider)
-                            .setStatsManager(distanceTracker)
+            CSVReader.daysData().filter { it.Date.contains("Sep-05") }.forEach {
+                println(it.Date)
+//                testManyShips(it.particles, DistanceTracker(1, it.Date), builder)
+                printOneShip(it.particles, 14.59,12400.0,0.0, 50, builder)
+            }
+        }
 
+        fun printOneShip(planets: Collection<Particle>, v0: Double, L: Double, angle: Double, step: Int, builder: SimulationProperties) {
+            var stats = SystemStats(step)
+            builder.setStatsManager(stats)
             val earth = planets.first { it.id == Planets.EARTH.ordinal }
             val earthVersor = earth.position.versor()
+            builder.setInitialParticles(planets.plus(
+                        Particle(1337,
+                                earth.position + earthVersor.scaledBy(L),
+                                (Vector(-earthVersor.y, earthVersor.x).scaledBy(v0) + earth.velocity),
+                                100.0,
+                                721.9
+                        )))
+                    .build().simulate()
+            OvitoPrinter.printPositions(stats.statList, "verlet_v" + v0 + "_L" + L, shouldPrint = true)
+        }
 
+
+        fun testManyShips(planets: Collection<Particle>, distanceTracker: DistanceTracker, builder: SimulationProperties) {
+            builder.setStatsManager(distanceTracker)
+            val earth = planets.first { it.id == Planets.EARTH.ordinal }
+            val earthVersor = earth.position.versor()
             val minL = 6400
             val maxL = minL + 10000
             val maxV0 = 20
-
-            for (v in -maxV0..maxV0) {
-                for (L in minL..maxL step 1000) {
-                    distanceTracker.setupInitialConditions(L.toDouble(), v.toDouble())
-                    builder
-                            .setInitialParticles(planets.plus(
-                                    Particle(1337,
-                                            earth.position + earthVersor.scaledBy(L.toDouble()),
-                                            Vector(-earthVersor.y, earthVersor.x).scaledBy(v.toDouble()),
-                                            100.0,
-                                            721.9
-                                            )
-                            ))
-                            .build().simulate()
-                }
+            for (cV in 0..maxV0*100) {
+                val v = cV / 100.0
+                println(v)
+//                for (L in minL..maxL step 1000) {
+                  val L = 12400.0
+//                    for (angle in -90..90 step 5){
+                        distanceTracker.setupInitialConditions(L.toDouble(), v.toDouble(), 0.0) // TODO angle
+                        builder.setInitialParticles(planets.plus(
+                                Particle(1337,
+                                        earth.position + earthVersor.scaledBy(L.toDouble()),
+                                        (Vector(-earthVersor.y, earthVersor.x).scaledBy(v.toDouble()) + earth.velocity),
+                                        100.0,
+                                        721.9
+                                )
+                        ))
+                                .build().simulate()
+//                    }
+//                }
             }
-
             distanceTracker.flush()
         }
     }

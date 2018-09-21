@@ -22,10 +22,10 @@ object OvitoPrinter {
 
                     writer.write("${planets}\n\n")
                     var planetNum = 0
-                    stats[statNum].positions.forEach { (_, position) ->
-                        val color = Planets.values().firstOrNull { it.ordinal == planetNum }?.color ?: Color.default
-                        val radius = Planets.values().firstOrNull { it.ordinal == planetNum }?.radius ?: 1000.0
-                        val radiusMultiplier = Planets.values().firstOrNull { it.ordinal == planetNum }?.radiusMultiplier ?: 10000.0
+                    stats[statNum].positions.forEach { (particleId, position) ->
+                        val color = Planets.values().firstOrNull { it.ordinal == particleId }?.color ?: Color.default
+                        val radius = Planets.values().firstOrNull { it.ordinal == particleId }?.radius ?: 1000.0
+                        val radiusMultiplier = Planets.values().firstOrNull { it.ordinal == particleId }?.radiusMultiplier ?: 10000.0
 
                         writer.write("${planetNum++} ${position.x} ${position.y} ${color.red} ${color.green} ${color.blue} ${radius*radiusMultiplier}\n")
                     }

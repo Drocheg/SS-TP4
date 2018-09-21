@@ -12,8 +12,8 @@ class CSVReader {
 
             return earth.zip(saturn).zip(jupiter).map {
                 val earthData = it.first.first.split(",")
-                val jupiterData = it.first.second.split(",")
-                val saturnData = it.second.split(",")
+                val saturnData = it.first.second.split(",")
+                val jupiterData = it.second.split(",")
 
                 val particles = ArrayList<Particle>()
 
