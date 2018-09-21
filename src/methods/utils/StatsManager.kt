@@ -37,21 +37,37 @@ class SystemStats(override val steps: Int): StatsManager {
 
 }
 
+data class DistanceTrackerStats(
+    var minDistance: Double,
+    var minL: Double,
+    var minV0: Double,
+    var minAngle: Double,
+    var minDate: String,
+    var timeToGetToSaturn: Double
+)
+
 class DistanceTracker(override val steps: Int, val date: String): StatsManager {
 
+
+    //Best for this Date
+    var best: DistanceTrackerStats = DistanceTrackerStats(Double.MAX_VALUE, 0.0,0.0,0.0,"",0.0)
+
+    //Have to track old distances
     var minJupiterDistance = Double.MAX_VALUE
     var minSaturnDistance = Double.MAX_VALUE
 
-    var minDistance = Double.MAX_VALUE
-    var minL = 0.0
-    var minV0 = 0.0
 
+    //CurrentParameters
     var currentL = 0.0
     var currentV0 = 0.0
+    var currentAngle = 0.0
+    var currentTimeToGetToSaturn = 0.0
 
-    fun setupInitialConditions(L: Double, V0: Double) {
+    fun setupInitialConditions(L: Double, V0: Double, angle: Double) {
         currentL = L
         currentV0 = V0
+        currentAngle = angle
+
         minJupiterDistance = Double.MAX_VALUE
         minSaturnDistance = Double.MAX_VALUE
     }
@@ -64,21 +80,26 @@ class DistanceTracker(override val steps: Int, val date: String): StatsManager {
         //I was lazy not to hardcode this
         val ship = system.first { it.id == 1337 }
 
+        val saturnDistance = (ship.position - saturn.position).norm()
+        if(minSaturnDistance > saturnDistance) {
+            currentTimeToGetToSaturn = time
+            minSaturnDistance = saturnDistance
+        }
+
         minJupiterDistance = min(minJupiterDistance, (ship.position - jupiter.position).norm())
-        minSaturnDistance = min(minSaturnDistance, (ship.position - saturn.position).norm())
 
         val distance = minJupiterDistance + minSaturnDistance
-        if(minDistance > distance) {
-            minDistance = distance
-            minL = currentL
-            minV0 = currentV0
+        if(best.minDistance > distance) {
+            best = DistanceTrackerStats(distance, currentL, currentV0, currentAngle, date, currentTimeToGetToSaturn)
         }
     }
 
     fun flush() {
         File("stats/distance").appendText(date +","
-                + minL + ","
-                + minV0 + ","
-                + minDistance + "\n")
+                + best.minDistance + ","
+                + best.minV0 + ","
+                + best.minL + ","
+                + best.minAngle + ","
+                + best.timeToGetToSaturn +"\n")
     }
 }

@@ -4,7 +4,9 @@ import methods.gear.SpringGearInitializer
 import methods.utils.*
 import methods.verlet.VelocityVerlet
 import utils.*
+import utils.Vector
 import java.io.File
+import java.util.*
 
 class TP4 {
     companion object {
@@ -112,7 +114,7 @@ class TP4 {
         @JvmStatic
         fun mainDistance(args: Array<String>) {
             File("stats/distance").delete()
-            CSVReader.daysData().forEach {
+            CSVReader.daysData().filter { it.Date.contains("Sep-05") }.forEach {
                 println(it.Date)
                 testManyShips(it.particles, DistanceTracker(1, it.Date))
             }
