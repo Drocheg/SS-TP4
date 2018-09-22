@@ -119,7 +119,7 @@ class TP4 {
 
 
             // Verlet
-            stats = SystemStats(1000)
+            stats = SystemStats(40000)
             builder.setProvider(VelocityVerlet.Provider)
                     .setStatsManager(stats)
             builder.build().simulate()
@@ -130,14 +130,15 @@ class TP4 {
         fun main(args: Array<String>) {
             val builder =
                     SimulationProperties()
-                            .setDeltaTime(1.0 * 60 * 60 * 10)
-                            .setMaxTime(1.0 * 60 * 60 * 24 * 365 * 3)
+                            .setDeltaTime(1.0 * 60 * 10)
+                            .setMaxTime(1.0 * 60 * 60 * 24 * 365 * 2)
                             .setForceCalculator(Gravity())
                             .setProvider(VelocityVerlet.Provider)
             CSVReader.daysData().forEach {
                 println(it.Date)
-                testManyShips(it.particles, DistanceTracker(1, it.Date), builder)
-//                printOneShip(it.particles, 11.17,14400.0,0.0, 1, builder)
+                val tracker = DistanceTracker(1, it.Date);
+                testManyShips(it.particles, tracker, builder)
+                printOneShip(it.particles, tracker.best.minV0,tracker.best.minL,0.0, 1, builder)
             }
         }
 
@@ -149,7 +150,7 @@ class TP4 {
             builder.setInitialParticles(planets.plus(
                         Particle(1337,
                                 earth.position + earthVersor.scaledBy(L),
-                                (Vector(-earthVersor.y, earthVersor.x).scaledBy(v0) + earth.velocity),
+                                earth.velocity + earth.velocity.versor().scaledBy(v0),
                                 100.0,
                                 721.9
                         )))
@@ -162,28 +163,30 @@ class TP4 {
             builder.setStatsManager(distanceTracker)
             val earth = planets.first { it.id == Planets.EARTH.ordinal }
             val earthVersor = earth.position.versor()
+            val earthVVersor = earth.velocity.versor();
             val minL = 6400
             val maxL = minL + 10000
             val maxV0 = 20
-            for (cV in 0..maxV0*50) {
-                val v = cV / 50.0
+            for (cV in 0..maxV0*25) {
+                val v = cV / 25.0
                 println(v)
                 for (L in minL..maxL step 500) {
 //                  val L = 12400.0
 //                    for (angle in -90..90 step 5){
-                        (builder.stats as DistanceTracker).setupInitialConditions(L.toDouble(), v.toDouble(), 0.0) // TODO angle
+                        (builder.stats as DistanceTracker).setupInitialConditions(L.toDouble(), v, 0.0) // TODO angle
                     try {
                         builder.setInitialParticles(planets.map { it.clone() }.plus(
                                 Particle(1337,
                                         earth.position + earthVersor.scaledBy(L.toDouble()),
-                                        (Vector(-earthVersor.y, earthVersor.x).scaledBy(v.toDouble()) + earth.velocity),
+                                        earth.velocity + earth.velocity.versor().scaledBy(v),
                                         100.0,
                                         721.9
                                 )
                         ))
                                 .build().simulate()
 //                    }
-                    }catch (e: Exception) {
+                    } catch (e: Exception) {
+                        println("Exception height $L velocity $v ")
                         println(e)
                     }
                 }
