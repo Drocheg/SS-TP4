@@ -1,12 +1,12 @@
 import methods.beeman.VelocityDependentBeeman
 import methods.gear.GearPredictorCorrector
 import methods.gear.SpringGearInitializer
-import methods.utils.*
+import methods.utils.DistanceTracker
+import methods.utils.SimulationProperties
+import methods.utils.StatsPrinter
+import methods.utils.SystemStats
 import methods.verlet.VelocityVerlet
 import utils.*
-import utils.Vector
-import java.io.File
-import java.util.*
 
 class TP4 {
     companion object {
@@ -138,7 +138,7 @@ class TP4 {
                 println(it.Date)
                 val tracker = DistanceTracker(1, it.Date);
                 testManyShips(it.particles, tracker, builder)
-                printOneShip(it.particles, tracker.best.minV0,tracker.best.minL,0.0, 1, builder)
+                printOneShip(it.particles, tracker.best.minV0, tracker.best.minL, 0.0, 1, builder)
             }
         }
 
@@ -148,14 +148,14 @@ class TP4 {
             val earth = planets.first { it.id == Planets.EARTH.ordinal }
             val earthVersor = earth.position.versor()
             builder.setInitialParticles(planets.plus(
-                        Particle(1337,
-                                earth.position + earthVersor.scaledBy(L),
-                                earth.velocity + earth.velocity.versor().scaledBy(v0),
-                                100.0,
-                                721.9
-                        )))
+                    Particle(1337,
+                            earth.position + earthVersor.scaledBy(L),
+                            (earth.velocity.versor().scaledBy(v0)).rotate(Math.toRadians(angle)) + earth.velocity,
+                            100.0,
+                            721.9
+                    )))
                     .build().simulate()
-            OvitoPrinter.printPositions(stats.statList, "verlet_v" + v0 + "_L" + L, shouldPrint = true)
+            OvitoPrinter.printPositions(stats.statList, "verlet_v" + v0 + "_L" + L + "_angle" + angle, shouldPrint = true)
         }
 
 
@@ -167,13 +167,13 @@ class TP4 {
             val minL = 6400
             val maxL = minL + 10000
             val maxV0 = 20
-            for (cV in 0..maxV0*25) {
+            for (cV in 0..maxV0 * 25) {
                 val v = cV / 25.0
                 println(v)
                 for (L in minL..maxL step 500) {
 //                  val L = 12400.0
 //                    for (angle in -90..90 step 5){
-                        (builder.stats as DistanceTracker).setupInitialConditions(L.toDouble(), v, 0.0) // TODO angle
+                    (builder.stats as DistanceTracker).setupInitialConditions(L.toDouble(), v, 0.0)
                     try {
                         builder.setInitialParticles(planets.map { it.clone() }.plus(
                                 Particle(1337,
@@ -188,6 +188,40 @@ class TP4 {
                     } catch (e: Exception) {
                         println("Exception height $L velocity $v ")
                         println(e)
+                    }
+                }
+            }
+            distanceTracker.flush()
+        }
+
+        fun testManyShipsAngle(planets: Collection<Particle>, distanceTracker: DistanceTracker, builder: SimulationProperties) {
+            builder.setStatsManager(distanceTracker)
+            val earth = planets.first { it.id == Planets.EARTH.ordinal }
+            val earthVersor = earth.position.versor()
+            val earthVVersor = earth.velocity.versor();
+            val minL = 6400
+            val maxL = minL + 10000
+            val maxV0 = 20
+
+            for (cV in 0..maxV0 * 10) {
+                val v = cV / 10.0
+                println(v)
+                for (L in minL..maxL step 1000) {
+                    for (angle in -0..0 step 1) {
+                        (builder.stats as DistanceTracker).setupInitialConditions(L.toDouble(), v.toDouble(), angle.toDouble())
+                        try {
+                            builder.setInitialParticles(planets.map { it.clone() }.plus(
+                                    Particle(1337,
+                                            earth.position + earthVersor.scaledBy(L.toDouble()),
+                                            (earth.velocity.versor().scaledBy(v)).rotate(Math.toRadians(angle.toDouble())) + earth.velocity,
+                                            100.0,
+                                            721.9
+                                    )
+                            ))
+                                    .build().simulate()
+                        } catch (e: Exception) {
+                            println(e)
+                        }
                     }
                 }
             }
