@@ -7,6 +7,7 @@ import methods.utils.StatsPrinter
 import methods.utils.SystemStats
 import methods.verlet.VelocityVerlet
 import utils.*
+import java.io.File
 
 class TP4 {
     companion object {
@@ -128,10 +129,12 @@ class TP4 {
 
         @JvmStatic
         fun main(args: Array<String>) {
+            val delta = 5.0
+
             val builder =
                     SimulationProperties()
-                            .setDeltaTime(1.0 * 60 * 10)
-                            .setMaxTime(1.0 * 60 * 60 * 24 * 365 * 2)
+                            .setDeltaTime(delta)
+                            .setMaxTime(1.0 * 60 * 60 * 24 * 365 * 3.5)
                             .setForceCalculator(Gravity())
                             .setProvider(VelocityVerlet.Provider)
             CSVReader.daysData().forEach {
@@ -167,9 +170,9 @@ class TP4 {
             val minL = 6400
             val maxL = minL + 10000
             val maxV0 = 20
+            val file = File("stats/heatmap_${builder.deltaTime}")
             for (cV in 0..maxV0 * 25) {
                 val v = cV / 25.0
-                println(v)
                 for (L in minL..maxL step 500) {
 //                  val L = 12400.0
 //                    for (angle in -90..90 step 5){
@@ -189,6 +192,12 @@ class TP4 {
                         println("Exception height $L velocity $v ")
                         println(e)
                     }
+
+                    // DESCOMENTAR ABAJO
+                    // file.appendText("$v $L ${distanceTracker.minSaturnDistance + distanceTracker.minJupiterDistance} ${distanceTracker.minJupiterDistance} ${distanceTracker.minSaturnDistance}\n")
+
+
+
                 }
             }
             distanceTracker.flush()
